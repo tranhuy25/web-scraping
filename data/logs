@@ -1,0 +1,36 @@
+import os
+import requests
+from bs4 import BeautifulSoup
+import json
+from datetime import datetime
+from config import DATA_DIR
+
+BASE_URL = 'https://vnexpress.net/'
+os.makedirs(DATA_DIR, exist_ok=True)
+
+def fetch_articles(url):
+    response = requests.get(url)
+    soup = BeautifulSoup(response.content, 'html.parser')
+
+    articles = []
+    for item in soup.select('h3.title-news a'):
+        article = {
+            'title': item.get_text(strip=True),
+            'link': item.get('href'),
+            'date': datetime.now().isoformat()
+        }
+        articles.append(article)
+    
+    return articles
+
+def save_to_file(data, filename):
+    filepath = os.path.join(DATA_DIR, filename)
+    with open(filepath, 'w', encoding='utf-8') as f:
+        json.dump(data, f, ensure_ascii=False, indent=4)
+
+def main():
+    articles = fetch_articles(BASE_URL)
+    save_to_file(articles, 'articles.json')
+
+if __name__ == '__main__':
+    main()

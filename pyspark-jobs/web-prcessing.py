@@ -1,27 +1,20 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col
+from pyspark.sql.functions import col, regexp_replace
+from config import DATA_DIR, SPARK_MASTER
 
-# Tạo SparkSession
 spark = SparkSession.builder \
-    .appName("VNExpress Processing") \
+    .appName("VNExpress Data Processing") \
+    .master(SPARK_MASTER) \
     .getOrCreate()
 
-# Đọc dữ liệu từ file txt đã thu thập
-df = spark.read.text("/path/to/data/vnexpress/articles.txt")
+input_path = os.path.join(DATA_DIR, 'articles.json')
+df = spark.read.json(input_path)
 
-# Tách các trường dữ liệu từ chuỗi
-articles_df = df.select(
-    col("value").substr(1, col("value").rlike("-")).alias("title"),
-    col("value").substr(col("value").rlike("-") + 1, len("value")).alias("url")
-)
+df_clean = df.withColumn('title', regexp_replace(col('title'), '[^\\w\\s]', ''))
 
-# Lưu kết quả vào PostgreSQL
-articles_df.write \
-    .format("jdbc") \
-    .option("url", f"jdbc:postgresql://{config.Config.DB_HOST}:{config.Config.DB_PORT}/{config.Config.DB_NAME}") \
-    .option("dbtable", "vnexpress_articles") \
-    .option("user", config.Config.DB_USER) \
-    .option("password", config.Config.DB_PASSWORD) \
-    .save()
+df_clean.show(truncate=False)
+
+output_path = os.path.join(DATA_DIR, 'processed_articles.csv')
+df_clean.write.csv(output_path, header=True)
 
 spark.stop()

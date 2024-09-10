@@ -17,12 +17,15 @@ services:
     environment:
       - LOAD_EX=y
       - EXECUTOR=LocalExecutor
+      - AIRFLOW__CORE__SQL_ALCHEMY_DATABASE_URI=postgresql+psycopg2://user:password@postgres:5432/airflow
     volumes:
       - ./airflow/dags:/usr/local/airflow/dags
+      - ./airflow/plugins:/usr/local/airflow/plugins
     ports:
       - "8080:8080"
     depends_on:
       - postgres
+    entrypoint: ["airflow", "webserver"]
 
 volumes:
   postgres_data:
