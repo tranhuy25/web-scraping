@@ -1,0 +1,7 @@
+pyspark==3.4.0
+apache-airflow==2.6.0
+boto3==1.28.0
+psycopg2==2.9.6
+python-dotenv==1.0.0
+beautifulsoup4==4.10.0  # Web scraping
+requests==2.26.0        # HTTP requests

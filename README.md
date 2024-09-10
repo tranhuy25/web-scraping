@@ -14,7 +14,7 @@ Python 3.9
 Environment Setup
 Clone the Repository
 git clone <URL_OF_YOUR_REPOSITORY>
-cd big_data_project
+
 Install Docker
 Ensure that you have Docker and Docker Compose installed. You can download and install Docker from the official Docker website.
 
